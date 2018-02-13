@@ -61,7 +61,7 @@ bool		displayRevolutionObject = false;
 bool        isLightEnabled = true;	/* Lighting is disabled when = false */
 
 // Array and buffer Objects. vao:vertex array object, vbo: vertex buffer object, nbo: normal buffer object
-unsigned int vaoPlaneID; 
+unsigned int vaoPlaneID;
 unsigned int vboPlaneID;
 unsigned int nboPlaneID;
 
@@ -76,8 +76,8 @@ unsigned int vaoNormalsID;
 unsigned int vboNormalsID;
 
 // Camera matrices
-glm::mat4	projectionMatrix; 
-glm::mat4	viewMatrix; 
+glm::mat4	projectionMatrix;
+glm::mat4	viewMatrix;
 
 // Shader
 Shader*		shader;
@@ -118,12 +118,12 @@ DESCRIPTION: Switche degrees to radians, and the opposite
 *****************************************************/
 float deg2rad(float deg)
 {
-    return	0.01745329251994329547437168059786927187815f * deg;
+	return	0.01745329251994329547437168059786927187815f * deg;
 }
 
 float rad2deg(float rad)
 {
-    return	57.2957795130823228646477218717336654663085f * rad;
+	return	57.2957795130823228646477218717336654663085f * rad;
 }
 
 /*****************************************************
@@ -150,7 +150,7 @@ void initMaterials()
 NAME: initObjects
 
 DESCRIPTION: initialize the objects, and the silhouette for the revolution object.
-	This means creating the GPU vertex arrays and vertex buffers.  
+	This means creating the GPU vertex arrays and vertex buffers.
 
 	For the lights, since their mesh is constant, we shall also create its
 	vertices and copy it in the GPU.
@@ -244,7 +244,7 @@ void initLights()
 	std::vector<glm::vec3> vertices = getSphereVertices(5, 10, 10);
 
 	// Bind the Vertex Array Object so we can use it 
-	glBindVertexArray(vaoLightID);  
+	glBindVertexArray(vaoLightID);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboLightID); // Bind the Vertex Buffer Object 
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW); // Set the size and data of our VBO  
@@ -303,13 +303,13 @@ void copyLightParametersOnGPU(void)
 NAME: updateNormalLines
 
 DESCRIPTION: create a series of lines each made of 2 vertices.
-	then copy it on the GPU.  These lines are used to 
-	illustrate the normals at each vertex of the revolution 
+	then copy it on the GPU.  These lines are used to
+	illustrate the normals at each vertex of the revolution
 	object.
 *****************************************************/
 void updateNormalLines()
 {
-    // AJOUTER CODE ICI
+	// AJOUTER CODE ICI
 }
 
 
@@ -323,7 +323,7 @@ Somewhat similar to "drawLight"
 *****************************************************/
 void drawNormals()
 {
-   //AJOUTER CODE ICI
+	//AJOUTER CODE ICI
 }
 
 
@@ -339,8 +339,8 @@ at Y=-100;
 *****************************************************/
 void updatePlaneMesh()
 {
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
 	glm::vec3 vertex;
 	glm::vec3 normal;
 
@@ -349,49 +349,64 @@ void updatePlaneMesh()
 	// LA RESOLUTION DEPEND DE LA VARIABLE GLOBALE "objectResolution"
 	// ==> TOUCHES 'A' ET 'a' DU CLAVIER.
 
-	// First triangle
+
+	vertex.y = -100.f;
+	float xSize = 200.f, xOrigin = -100.f, xIncrem = xSize / objectResolution;
+	float zSize = 200.f, zOrigin = -100.f, zIncrem = zSize / objectResolution;
+
 	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
-	vertex.x = 100.f; vertex.y = -100.f; vertex.z = 100.f;
-	vertices.push_back(vertex);
-	normals.push_back(normal);
 
-	vertex.x = 100.f; vertex.y = -100.f; vertex.z = -100.f;
-	vertices.push_back(vertex);
-	normals.push_back(normal);
+	for (float x = xOrigin; x < xOrigin + xSize; x += xIncrem) {
+		for (float z = zOrigin; z < zOrigin + zSize; z += zIncrem) {
+			// First triangle
+			vertex.x = x + xIncrem;
+			vertex.z = z + zIncrem;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
 
-	vertex.x = -100.f; vertex.y = -100.f; vertex.z = 100.f;
-	vertices.push_back(vertex);
-	normals.push_back(normal);
+			vertex.x = x + xIncrem;
+			vertex.z = z;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
 
-	// Second triangle
-	vertex.x = 100.f; vertex.y = -100.f; vertex.z = -100.f;
-	vertices.push_back(vertex);
-	normals.push_back(normal);
+			vertex.x = x;
+			vertex.z = z + zIncrem;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
 
-	vertex.x = -100.f; vertex.y = -100.f; vertex.z = -100.f;
-	vertices.push_back(vertex);
-	normals.push_back(normal);
+			// Second triangle
+			vertex.x = x + xIncrem;
+			vertex.z = z;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
 
-	vertex.x = -100.f; vertex.y = -100.f; vertex.z = 100.f;
-	vertices.push_back(vertex);
-	normals.push_back(normal);
+			vertex.x = x;
+			vertex.z = z;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
 
+			vertex.x = x;
+			vertex.z = z + zIncrem;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+		}
+	}
 
-    glBindVertexArray(vaoPlaneID);
+	glBindVertexArray(vaoPlaneID);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vboPlaneID); 
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vboPlaneID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
-    int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
-    glEnableVertexAttribArray(in_PositionLocation);
-    glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
+	glEnableVertexAttribArray(in_PositionLocation);
+	glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, nboPlaneID);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, nboPlaneID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 
-    int in_NormalLocation = glGetAttribLocation(shader->id(), "in_Normal");
-    glEnableVertexAttribArray(in_NormalLocation);
-    glVertexAttribPointer(in_NormalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	int in_NormalLocation = glGetAttribLocation(shader->id(), "in_Normal");
+	glEnableVertexAttribArray(in_NormalLocation);
+	glVertexAttribPointer(in_NormalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 
@@ -407,42 +422,42 @@ void drawPlane()
 
 	glm::mat4 planeMatrix = glm::mat4(1.f);
 
-    // Get the locations of uniform shader variables
-    int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
-    int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
-    int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
+	// Get the locations of uniform shader variables
+	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
+	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
+	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
 
-    int materialKaLocation = glGetUniformLocation(shader->id(), "materialKa");
-    int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
-    int materialKsLocation = glGetUniformLocation(shader->id(), "materialKs");
-    int materialShininessLocation = glGetUniformLocation(shader->id(), "materialShininess");
+	int materialKaLocation = glGetUniformLocation(shader->id(), "materialKa");
+	int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
+	int materialKsLocation = glGetUniformLocation(shader->id(), "materialKs");
+	int materialShininessLocation = glGetUniformLocation(shader->id(), "materialShininess");
 
-    // Copy data to the GPU
-    glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-    glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &planeMatrix[0][0]);
+	// Copy data to the GPU
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &planeMatrix[0][0]);
 
-    glUniform3f(materialKaLocation, materials[0].ambient[0], materials[0].ambient[1], materials[0].ambient[2]);
-    glUniform3f(materialKdLocation, materials[0].diffuse[0], materials[0].diffuse[1], materials[0].diffuse[2]);
-    glUniform3f(materialKsLocation, materials[0].specular[0], materials[0].specular[1], materials[0].specular[2]);
-    glUniform1f(materialShininessLocation, materials[0].shininess);
+	glUniform3f(materialKaLocation, materials[0].ambient[0], materials[0].ambient[1], materials[0].ambient[2]);
+	glUniform3f(materialKdLocation, materials[0].diffuse[0], materials[0].diffuse[1], materials[0].diffuse[2]);
+	glUniform3f(materialKsLocation, materials[0].specular[0], materials[0].specular[1], materials[0].specular[2]);
+	glUniform1f(materialShininessLocation, materials[0].shininess);
 
-    // Draw the object
-    glBindVertexArray(vaoPlaneID);
+	// Draw the object
+	glBindVertexArray(vaoPlaneID);
 
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboPlaneID);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vboPlaneID);
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, nboPlaneID);
-    glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, nboPlaneID);
+	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glDrawArrays(GL_TRIANGLES, 0, objectResolution * objectResolution * 6);
+	glDrawArrays(GL_TRIANGLES, 0, objectResolution * objectResolution * 6);
 
-    glBindVertexArray(0);
+	glBindVertexArray(0);
 
-    shader->unbind(); // deactivate shader
+	shader->unbind(); // deactivate shader
 }
 
 
@@ -450,16 +465,16 @@ void drawPlane()
 /*****************************************************
 NAME: updateRevolutionObject
 
-DESCRIPTION: create the vertices and the normals of the revolutionObject and 
-copy it on the GPU (1 normal per vertex).  The number of slices (or meridan) on the 
+DESCRIPTION: create the vertices and the normals of the revolutionObject and
+copy it on the GPU (1 normal per vertex).  The number of slices (or meridan) on the
 revolution object is defined by the global variable "objectResolution"
 
 *****************************************************/
 void updateRevolutionObjectMesh()
 {
-    
-    //AJOUTER CODE ICI
-    
+
+	//AJOUTER CODE ICI
+
 }
 
 /*****************************************************
@@ -470,7 +485,7 @@ DESCRIPTION: draw the revolution object with material materials[1]
 *****************************************************/
 void drawRevolutionObject()
 {
-   // AJOUTER CODE ICI
+	// AJOUTER CODE ICI
 }
 
 
@@ -478,38 +493,38 @@ void drawRevolutionObject()
 NAME: drawLight
 
 DESCRIPTION: draw a light specified by 'lightindex'.  Lightindex is 0 or 1.
-The light is NOT shaded and its RGB color is the one stored in 
+The light is NOT shaded and its RGB color is the one stored in
 "lights[lightindex].diffuse"
 
 *****************************************************/
 void drawLight(int lightindex)
 {
-    shader->bind(); // activate shader
+	shader->bind(); // activate shader
 
 	glm::mat4 lightModelMatrix = glm::translate(glm::mat4(1.f), glm::vec3(lights[lightindex].position[0], lights[lightindex].position[1], lights[lightindex].position[2]));
 
-    // Get the locations of uniform variables
-    int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
-    int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
-    int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
-    int lightPosLocation = glGetUniformLocation(shader->id(), "lightPosition");
-    int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
+	// Get the locations of uniform variables
+	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
+	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
+	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
+	int lightPosLocation = glGetUniformLocation(shader->id(), "lightPosition");
+	int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
 
-    // Copy data to the GPU
-    glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-    glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
-    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &lightModelMatrix[0][0]);
-    glUniform4f(lightPosLocation, 0.f, 0.f, 0.f, 0.f);
-    glUniform3f(materialKdLocation, lights[lightindex].diffuse[0], lights[lightindex].diffuse[1], lights[lightindex].diffuse[2]);
+	// Copy data to the GPU
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &lightModelMatrix[0][0]);
+	glUniform4f(lightPosLocation, 0.f, 0.f, 0.f, 0.f);
+	glUniform3f(materialKdLocation, lights[lightindex].diffuse[0], lights[lightindex].diffuse[1], lights[lightindex].diffuse[2]);
 
-    // Draw object
-    glBindVertexArray(vaoLightID);
+	// Draw object
+	glBindVertexArray(vaoLightID);
 
-    glDrawArrays(GL_TRIANGLES, 0, 10 * 10 * 6);
+	glDrawArrays(GL_TRIANGLES, 0, 10 * 10 * 6);
 
-    glBindVertexArray(0);
+	glBindVertexArray(0);
 
-    shader->unbind(); // deactivate shader
+	shader->unbind(); // deactivate shader
 }
 
 
@@ -517,7 +532,7 @@ void drawLight(int lightindex)
 /*****************************************************
 NAME: getSphereVertices
 
-DESCRIPTION: get the vertices of a sphere made of 
+DESCRIPTION: get the vertices of a sphere made of
  triangles and centered at the origin.
 
 rad: radius of the sphere
@@ -530,7 +545,7 @@ std::vector<glm::vec3> getSphereVertices(float rad, int meridian, int latitude)
 	// AJOUTER CODE ICI
 	// EFFACER LE CONTENU DE CETTE FONCTION ET REMPLACEZ LE PAR DES VERTEX DEVANT FORMER UNE SPHERE DE RAYON "rad"
 
-    std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> vertices;
 	glm::vec3 vertex;
 
 	// First triangle
@@ -575,22 +590,22 @@ DESCRIPTION: display the main window and all its object
 *****************************************************/
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    setCameraMatrices();
+	setCameraMatrices();
 	copyLightParametersOnGPU();
 
-    drawPlane();
-    if (displayRevolutionObject){
-        drawRevolutionObject();
-    }
+	drawPlane();
+	if (displayRevolutionObject) {
+		drawRevolutionObject();
+	}
 	if (displayNormals && displayRevolutionObject) {
 		drawNormals();
 	}
 	drawLight(0);  // white light
 	drawLight(1);  // blue light
 
-    glutSwapBuffers();
+	glutSwapBuffers();
 }
 
 /*****************************************************
@@ -601,28 +616,28 @@ DESCRIPTION: callback function for the keyboard
 *****************************************************/
 void keyboard(unsigned char key, int x, int y)
 {
-    GLint polyMode[2];
-    switch (key)
-    {
-        // Light manipulation
-    case '1':
-    case '2':
-        currentLight = &(lights[key - '1']);
-        break;
+	GLint polyMode[2];
+	switch (key)
+	{
+		// Light manipulation
+	case '1':
+	case '2':
+		currentLight = &(lights[key - '1']);
+		break;
 
-    case '3':
-        currentLight = NULL;
-        break;
-        
-        // Object resolution
-    case 'A':
-        ++objectResolution;
+	case '3':
+		currentLight = NULL;
+		break;
+
+		// Object resolution
+	case 'A':
+		++objectResolution;
 		updatePlaneMesh();
 		updateRevolutionObjectMesh();
 		updateNormalLines();
-        break;
-    case 'a':
-        --objectResolution;
+		break;
+	case 'a':
+		--objectResolution;
 		if (objectResolution <= 0) {
 			objectResolution = 1;
 		}
@@ -632,99 +647,99 @@ void keyboard(unsigned char key, int x, int y)
 
 		break;
 
-        // Camera parameters
-    case 'b':
-        gCam.ratio -= 0.05f;
-        if (gCam.ratio<0.05f)
-            gCam.ratio = 0.05f;
-        printf("%f\n", gCam.ratio);
-        break;
+		// Camera parameters
+	case 'b':
+		gCam.ratio -= 0.05f;
+		if (gCam.ratio < 0.05f)
+			gCam.ratio = 0.05f;
+		printf("%f\n", gCam.ratio);
+		break;
 
-    case 'B':
-        gCam.ratio += 0.05f;
-        if (gCam.ratio>5.f)
-            gCam.ratio = 5.f;
-        printf("%f\n", gCam.ratio);
-        break;
+	case 'B':
+		gCam.ratio += 0.05f;
+		if (gCam.ratio > 5.f)
+			gCam.ratio = 5.f;
+		printf("%f\n", gCam.ratio);
+		break;
 
-    case 'c':
-        gCam.r -= 10.f;
-        if (gCam.r<1.f)
-            gCam.r = 1.f;
-        break;
+	case 'c':
+		gCam.r -= 10.f;
+		if (gCam.r < 1.f)
+			gCam.r = 1.f;
+		break;
 
-    case 'C':
-        gCam.r += 10;
-        if (gCam.r>5000)
-            gCam.r = 5000.f;
-        break;
+	case 'C':
+		gCam.r += 10;
+		if (gCam.r > 5000)
+			gCam.r = 5000.f;
+		break;
 
-    case 'e':
-        gCam.fovy -= 1.f;
-        if (gCam.fovy<1) gCam.fovy = 1.f;
-        break;
+	case 'e':
+		gCam.fovy -= 1.f;
+		if (gCam.fovy < 1) gCam.fovy = 1.f;
+		break;
 
-    case 'E':
-        gCam.fovy += 1.f;
-        if (gCam.fovy>170) gCam.fovy = 170.f;
-        break;
+	case 'E':
+		gCam.fovy += 1.f;
+		if (gCam.fovy > 170) gCam.fovy = 170.f;
+		break;
 
 
-    case 'L': // Enable or disables the light
-        isLightEnabled = !isLightEnabled;
+	case 'L': // Enable or disables the light
+		isLightEnabled = !isLightEnabled;
 
-    case 'n': // Enable or disable the normals
-    case 'N':
-        displayNormals = !displayNormals;
-    break; 
-	
+	case 'n': // Enable or disable the normals
+	case 'N':
+		displayNormals = !displayNormals;
+		break;
+
 	case 'o': // Enable or disable the revolution object
-    case 'O':
-        displayRevolutionObject = !displayRevolutionObject;
-        break;
+	case 'O':
+		displayRevolutionObject = !displayRevolutionObject;
+		break;
 
-    case 27:// To exit
-    case 'q':
-        exit(0);
-        break;
+	case 27:// To exit
+	case 'q':
+		exit(0);
+		break;
 
-    case 'w':// wireframe
-        glGetIntegerv(GL_POLYGON_MODE, polyMode);
-        if (polyMode[1] == GL_LINE)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        else
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        break;
+	case 'w':// wireframe
+		glGetIntegerv(GL_POLYGON_MODE, polyMode);
+		if (polyMode[1] == GL_LINE)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		break;
 
-        //Change shininess
-    case 'z':
-        materials[0].shininess -= 1.f;
-        if (materials[0].shininess<1.f)
-            materials[0].shininess = 1.f;
-        break;
-    case 'Z':
+		//Change shininess
+	case 'z':
+		materials[0].shininess -= 1.f;
+		if (materials[0].shininess < 1.f)
+			materials[0].shininess = 1.f;
+		break;
+	case 'Z':
 		materials[0].shininess += 1.f;
-        if (materials[0].shininess>500.f)
-            materials[0].shininess = 500.f;
-        break;
-    case 'x':
-        materials[1].shininess -= 1.f;
-        if (materials[1].shininess<1.f)
-            materials[1].shininess = 1.f;
-        break;
-    case 'X':
-        materials[1].shininess += 1.f;
-        if (materials[1].shininess>500.f)
-            materials[1].shininess = 500.f;
-        break;
+		if (materials[0].shininess > 500.f)
+			materials[0].shininess = 500.f;
+		break;
+	case 'x':
+		materials[1].shininess -= 1.f;
+		if (materials[1].shininess < 1.f)
+			materials[1].shininess = 1.f;
+		break;
+	case 'X':
+		materials[1].shininess += 1.f;
+		if (materials[1].shininess > 500.f)
+			materials[1].shininess = 500.f;
+		break;
 
 
-    default:
-        printf("undefined key [%d]\n", (int)key);
-        break;
-    }
+	default:
+		printf("undefined key [%d]\n", (int)key);
+		break;
+	}
 
-    glutPostRedisplay();
+	glutPostRedisplay();
 }
 
 /*****************************************************
@@ -734,13 +749,13 @@ DESCRIPTION: update the view and projection matrices
 *****************************************************/
 void setCameraMatrices()
 {
-    float z = gCam.r*cos(deg2rad(gCam.theta))*cos(deg2rad(gCam.phi));
-    float x = gCam.r*sin(deg2rad(gCam.theta))*cos(deg2rad(gCam.phi));
-    float y = gCam.r*sin(deg2rad(gCam.phi));
+	float z = gCam.r*cos(deg2rad(gCam.theta))*cos(deg2rad(gCam.phi));
+	float x = gCam.r*sin(deg2rad(gCam.theta))*cos(deg2rad(gCam.phi));
+	float y = gCam.r*sin(deg2rad(gCam.phi));
 
-    viewMatrix = glm::lookAt(glm::vec3(x, y, z),       
-                             glm::vec3(0.f, 0.f, 0.f), 
-                             glm::vec3(0.f, 1.f, 0.f));
+	viewMatrix = glm::lookAt(glm::vec3(x, y, z),
+		glm::vec3(0.f, 0.f, 0.f),
+		glm::vec3(0.f, 1.f, 0.f));
 
 	projectionMatrix = glm::perspective(glm::radians(gCam.fovy), gCam.ratio, gCam.nearCP, gCam.farCP);  // Create our perspective projection matrix
 
@@ -754,65 +769,65 @@ DESCRIPTION: mouse button callback
 *****************************************************/
 void mouseButton(int button, int state, int x, int y)
 {
-    if (state == GLUT_DOWN) {
-        lastMouseEvt.button = button;
-        lastMouseEvt.x = x;
-        lastMouseEvt.y = y;
-    }
-    else if (state == GLUT_UP) {
-        lastMouseEvt.button = -1;
-        lastMouseEvt.x = -1;
-        lastMouseEvt.y = -1;
+	if (state == GLUT_DOWN) {
+		lastMouseEvt.button = button;
+		lastMouseEvt.x = x;
+		lastMouseEvt.y = y;
+	}
+	else if (state == GLUT_UP) {
+		lastMouseEvt.button = -1;
+		lastMouseEvt.x = -1;
+		lastMouseEvt.y = -1;
 	}
 }
 
 /*****************************************************
 NAME: mouseMove
 
-DESCRIPTION: mouse move callback.  x,y contains the position 
+DESCRIPTION: mouse move callback.  x,y contains the position
 of the mouse in pixel units.
 *****************************************************/
 void mouseMove(int x, int y)
 {
-    int	dx = x - lastMouseEvt.x;
-    int	dy = -y + lastMouseEvt.y;
-    lastMouseEvt.x = x;
-    lastMouseEvt.y = y;
+	int	dx = x - lastMouseEvt.x;
+	int	dy = -y + lastMouseEvt.y;
+	lastMouseEvt.x = x;
+	lastMouseEvt.y = y;
 
-    switch (lastMouseEvt.button)
-    {
-    case GLUT_LEFT_BUTTON:
-    {
-        // Rotation
-        gCam.theta -= (float)dx;
-        gCam.phi -= (float)dy;
-        if (gCam.phi >  89) gCam.phi = 89.f;
-        if (gCam.phi < -89) gCam.phi = -89.f;
-        break;
-    }
-    case GLUT_MIDDLE_BUTTON:
-    {
-        // Move current light
-        if (currentLight)
-        {
-            currentLight->position[0] += (viewMatrix[0][0] * dx + viewMatrix[0][1] * dy + viewMatrix[0][2] * 0 + viewMatrix[0][3] * 1) *gCam.r / 900.f;
-            currentLight->position[1] += (viewMatrix[1][0] * dx + viewMatrix[1][1] * dy + viewMatrix[1][2] * 0 + viewMatrix[1][3] * 1) *gCam.r / 900.f;
-            currentLight->position[2] += (viewMatrix[2][0] * dx + viewMatrix[2][1] * dy + viewMatrix[2][2] * 0 + viewMatrix[2][3] * 1) *gCam.r / 900.f;
-        }
-        break;
-    }
-    case GLUT_RIGHT_BUTTON:
-    {
-        // Zoom in/out
-        gCam.r += (float)(dx - dy);
-        if (gCam.r < 1)	gCam.r = 1.f;
-        break;
-    }
-    default:
-        return;
-    }
+	switch (lastMouseEvt.button)
+	{
+	case GLUT_LEFT_BUTTON:
+	{
+		// Rotation
+		gCam.theta -= (float)dx;
+		gCam.phi -= (float)dy;
+		if (gCam.phi > 89) gCam.phi = 89.f;
+		if (gCam.phi < -89) gCam.phi = -89.f;
+		break;
+	}
+	case GLUT_MIDDLE_BUTTON:
+	{
+		// Move current light
+		if (currentLight)
+		{
+			currentLight->position[0] += (viewMatrix[0][0] * dx + viewMatrix[0][1] * dy + viewMatrix[0][2] * 0 + viewMatrix[0][3] * 1) *gCam.r / 900.f;
+			currentLight->position[1] += (viewMatrix[1][0] * dx + viewMatrix[1][1] * dy + viewMatrix[1][2] * 0 + viewMatrix[1][3] * 1) *gCam.r / 900.f;
+			currentLight->position[2] += (viewMatrix[2][0] * dx + viewMatrix[2][1] * dy + viewMatrix[2][2] * 0 + viewMatrix[2][3] * 1) *gCam.r / 900.f;
+		}
+		break;
+	}
+	case GLUT_RIGHT_BUTTON:
+	{
+		// Zoom in/out
+		gCam.r += (float)(dx - dy);
+		if (gCam.r < 1)	gCam.r = 1.f;
+		break;
+	}
+	default:
+		return;
+	}
 
-    glutPostRedisplay();
+	glutPostRedisplay();
 }
 
 /*****************************************************
@@ -821,16 +836,16 @@ NAME: init
 DESCRIPTION: initialize everything
 *****************************************************/
 void init() {
-    // Initialize GLEW
-    glewExperimental = GL_TRUE;
-    glewInit();
+	// Initialize GLEW
+	glewExperimental = GL_TRUE;
+	glewInit();
 
-    // Enable depth test
-    glDepthFunc(GL_LESS);
-    glEnable(GL_DEPTH_TEST);
+	// Enable depth test
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
 
-    // Black background
-    glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+	// Black background
+	glClearColor(0.3f, 0.3f, 0.3f, 1.f);
 
 	/*
 
@@ -848,20 +863,20 @@ void init() {
 	WARNING WARNING WARNING WARNIwNG WARNING
 
 	*/
-    shader = new Shader("./shader.vert", "./shader.frag");
+	shader = new Shader("./shader.vert", "./shader.frag");
 
-    // Objects
-    initObjects();
-    initMaterials();
+	// Objects
+	initObjects();
+	initMaterials();
 
-    // Camera parameters
-    gCam.theta = 0.f;
-    gCam.phi = 89.f;
-    gCam.r = 500.f;
-    gCam.fovy = 45.f;
-    gCam.ratio = 1.f;
-    gCam.nearCP = 1.f;
-    gCam.farCP = 3000.f;
+	// Camera parameters
+	gCam.theta = 0.f;
+	gCam.phi = 89.f;
+	gCam.r = 500.f;
+	gCam.fovy = 45.f;
+	gCam.ratio = 1.f;
+	gCam.nearCP = 1.f;
+	gCam.farCP = 3000.f;
 
 	// Create the vertices of the 2 objects, the normals and the 2 sphere lights and copy it on the GPU
 	updatePlaneMesh();
@@ -877,25 +892,25 @@ DESCRIPTION: create the window and setup the callback functions
 *****************************************************/
 int main(int argc, char** argv)
 {
-    glutInit(&argc, argv);
+	glutInit(&argc, argv);
 
-    // Init the openGL window
-    glutInitWindowPosition(0, 0);
-    glutInitWindowSize(500, 500);
+	// Init the openGL window
+	glutInitWindowPosition(0, 0);
+	glutInitWindowSize(500, 500);
 
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitContextVersion(3, 3);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitContextVersion(3, 3);
 
-    glutCreateWindow("IMN428 -- TP3 ");
+	glutCreateWindow("IMN428 -- TP3 ");
 
-    init();
+	init();
 
-    // Callbacks
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
-    glutMouseFunc(mouseButton);
-    glutMotionFunc(mouseMove);
-    glutMainLoop();
+	// Callbacks
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouseButton);
+	glutMotionFunc(mouseMove);
+	glutMainLoop();
 
-    return 0;
+	return 0;
 }
