@@ -356,8 +356,12 @@ void updatePlaneMesh()
 
 	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
 
-	for (float x = xOrigin; x < xOrigin + xSize; x += xIncrem) {
-		for (float z = zOrigin; z < zOrigin + zSize; z += zIncrem) {
+	for (int i = 0; i < objectResolution; i++) {
+		for (int j = 0; j < objectResolution; j++) {
+			
+			float x = xOrigin + i * xIncrem;
+			float z = zOrigin + j * zIncrem;
+			
 			// First triangle
 			vertex.x = x + xIncrem;
 			vertex.z = z + zIncrem;
