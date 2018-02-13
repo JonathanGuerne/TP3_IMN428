@@ -358,10 +358,10 @@ void updatePlaneMesh()
 
 	for (int i = 0; i < objectResolution; i++) {
 		for (int j = 0; j < objectResolution; j++) {
-			
+
 			float x = xOrigin + i * xIncrem;
 			float z = zOrigin + j * zIncrem;
-			
+
 			// First triangle
 			vertex.x = x + xIncrem;
 			vertex.z = z + zIncrem;
@@ -478,6 +478,79 @@ void updateRevolutionObjectMesh()
 {
 
 	//AJOUTER CODE ICI
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	glm::vec3 vertex;
+	glm::vec3 normal;
+
+	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
+
+
+	/*for (int j = 0; j < NB_PTS_ON_SILHOUETTE; j++) {
+
+	}*/
+
+	vertex.y = -25.f;
+	float xSize = 200.f, xOrigin = -100.f, xIncrem = xSize / objectResolution;
+	float zSize = 200.f, zOrigin = -100.f, zIncrem = zSize / objectResolution;
+
+	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
+
+	for (int i = 0; i < objectResolution; i++) {
+		for (int j = 0; j < objectResolution; j++) {
+
+			float x = xOrigin + i * xIncrem;
+			float z = zOrigin + j * zIncrem;
+
+			// First triangle
+			vertex.x = x + xIncrem;
+			vertex.z = z + zIncrem;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+
+			vertex.x = x + xIncrem;
+			vertex.z = z;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+
+			vertex.x = x;
+			vertex.z = z + zIncrem;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+
+			// Second triangle
+			vertex.x = x + xIncrem;
+			vertex.z = z;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+
+			vertex.x = x;
+			vertex.z = z;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+
+			vertex.x = x;
+			vertex.z = z + zIncrem;
+			vertices.push_back(vertex);
+			normals.push_back(normal);
+		}
+	}
+
+	glBindVertexArray(vaoRevolutionID);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+	////int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
+	////glEnableVertexAttribArray(in_PositionLocation);
+	////glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+	//int in_NormalLocation = glGetAttribLocation(shader->id(), "in_Normal");
+	//glEnableVertexAttribArray(in_NormalLocation);
+	//glVertexAttribPointer(in_NormalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 }
 
@@ -489,7 +562,46 @@ DESCRIPTION: draw the revolution object with material materials[1]
 *****************************************************/
 void drawRevolutionObject()
 {
-	// AJOUTER CODE ICI
+	shader->bind(); // activate shader
+
+	glm::mat4 revolutionObjectMatrix = glm::mat4(1.f);
+
+	// Get the locations of uniform shader variables
+	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
+	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
+	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
+
+	int materialKaLocation = glGetUniformLocation(shader->id(), "materialKa");
+	int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
+	int materialKsLocation = glGetUniformLocation(shader->id(), "materialKs");
+	int materialShininessLocation = glGetUniformLocation(shader->id(), "materialShininess");
+
+	// Copy data to the GPU
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &revolutionObjectMatrix[0][0]);
+
+	glUniform3f(materialKaLocation, materials[1].ambient[0], materials[1].ambient[1], materials[1].ambient[2]);
+	glUniform3f(materialKdLocation, materials[1].diffuse[0], materials[1].diffuse[1], materials[1].diffuse[2]);
+	glUniform3f(materialKsLocation, materials[1].specular[0], materials[1].specular[1], materials[1].specular[2]);
+	glUniform1f(materialShininessLocation, materials[1].shininess);
+
+	// Draw the object
+	glBindVertexArray(vaoRevolutionID);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
+	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, objectResolution * objectResolution * 6);
+
+	glBindVertexArray(0);
+
+	shader->unbind(); // deactivate shader
 }
 
 
