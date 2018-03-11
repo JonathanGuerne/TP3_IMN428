@@ -480,77 +480,103 @@ void updateRevolutionObjectMesh()
 	//AJOUTER CODE ICI
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
+
+	std::vector<glm::vec3> temp;
+
 	glm::vec3 vertex;
 	glm::vec3 normal;
 
 	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
+
+	float tetha = 2 * 3.1415 / objectResolution;
+	float currentAngle = 0.0f;
+
+
+	for (int k = 0; k < (objectResolution - 1); k++) {
+		for (int n = 0; n < NB_PTS_ON_SILHOUETTE; n++) {
+			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle);
+			vertex.y = silhouettePointArray[(n)].y;
+			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle);
+
+			normals.push_back(normal);
+			vertices.push_back(vertex);
+
+			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
+			vertex.y = silhouettePointArray[(n)].y;
+			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
+
+			normals.push_back(normal);
+			vertices.push_back(vertex);
+		}
+		currentAngle += tetha;
+	}
 
 
 	/*for (int j = 0; j < NB_PTS_ON_SILHOUETTE; j++) {
 
 	}*/
 
-	vertex.y = -25.f;
-	float xSize = 200.f, xOrigin = -100.f, xIncrem = xSize / objectResolution;
-	float zSize = 200.f, zOrigin = -100.f, zIncrem = zSize / objectResolution;
+	//vertex.y = -25.f;
+	//float xSize = 200.f, xOrigin = -100.f, xIncrem = xSize / objectResolution;
+	//float zSize = 200.f, zOrigin = -100.f, zIncrem = zSize / objectResolution;
 
-	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
+	//normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
 
-	for (int i = 0; i < objectResolution; i++) {
-		for (int j = 0; j < objectResolution; j++) {
+	//for (int i = 0; i < objectResolution; i++) {
+	//	for (int j = 0; j < objectResolution; j++) {
 
-			float x = xOrigin + i * xIncrem;
-			float z = zOrigin + j * zIncrem;
+	//		float x = xOrigin + i * xIncrem;
+	//		float z = zOrigin + j * zIncrem;
 
-			// First triangle
-			vertex.x = x + xIncrem;
-			vertex.z = z + zIncrem;
-			vertices.push_back(vertex);
-			normals.push_back(normal);
+	//		// First triangle
+	//		vertex.x = x + xIncrem;
+	//		vertex.z = z + zIncrem;
+	//		vertices.push_back(vertex);
+	//		normals.push_back(normal);
 
-			vertex.x = x + xIncrem;
-			vertex.z = z;
-			vertices.push_back(vertex);
-			normals.push_back(normal);
+	//		vertex.x = x + xIncrem;
+	//		vertex.z = z;
+	//		vertices.push_back(vertex);
+	//		normals.push_back(normal);
 
-			vertex.x = x;
-			vertex.z = z + zIncrem;
-			vertices.push_back(vertex);
-			normals.push_back(normal);
+	//		vertex.x = x;
+	//		vertex.z = z + zIncrem;
+	//		vertices.push_back(vertex);
+	//		normals.push_back(normal);
 
-			// Second triangle
-			vertex.x = x + xIncrem;
-			vertex.z = z;
-			vertices.push_back(vertex);
-			normals.push_back(normal);
+	//		// Second triangle
+	//		vertex.x = x + xIncrem;
+	//		vertex.z = z;
+	//		vertices.push_back(vertex);
+	//		normals.push_back(normal);
 
-			vertex.x = x;
-			vertex.z = z;
-			vertices.push_back(vertex);
-			normals.push_back(normal);
+	//		vertex.x = x;
+	//		vertex.z = z;
+	//		vertices.push_back(vertex);
+	//		normals.push_back(normal);
 
-			vertex.x = x;
-			vertex.z = z + zIncrem;
-			vertices.push_back(vertex);
-			normals.push_back(normal);
-		}
-	}
+	//		vertex.x = x;
+	//		vertex.z = z + zIncrem;
+	//		vertices.push_back(vertex);
+	//		normals.push_back(normal);
+	//	}
+	//}
 
 	glBindVertexArray(vaoRevolutionID);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
-	////int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
-	////glEnableVertexAttribArray(in_PositionLocation);
-	////glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
+	glEnableVertexAttribArray(in_PositionLocation);
+	glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 
-	//int in_NormalLocation = glGetAttribLocation(shader->id(), "in_Normal");
-	//glEnableVertexAttribArray(in_NormalLocation);
-	//glVertexAttribPointer(in_NormalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	int in_NormalLocation = glGetAttribLocation(shader->id(), "in_Normal");
+	glEnableVertexAttribArray(in_NormalLocation);
+	glVertexAttribPointer(in_NormalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 }
 
