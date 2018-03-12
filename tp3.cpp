@@ -494,52 +494,67 @@ void updateRevolutionObjectMesh()
 
 		float currentAngle = 0.0f;
 
+		std::vector<glm::vec3> temp;
+
 		for (int k = 0; k < objectResolution; k++) {
 
 			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle);
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle);
 
-			normals.push_back(normal);
-			vertices.push_back(vertex);
+			temp.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
 
-			normals.push_back(normal);
-			vertices.push_back(vertex);
+			temp.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
 
-			normals.push_back(normal);
-			vertices.push_back(vertex);
+			temp.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
 
-			normals.push_back(normal);
-			vertices.push_back(vertex);
+			temp.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
 
-			normals.push_back(normal);
-			vertices.push_back(vertex);
+			temp.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle + tetha);
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle + tetha);
 
-			normals.push_back(normal);
-			vertices.push_back(vertex);
+			temp.push_back(vertex);
+	
+			
+			vertices.push_back(temp[0]);
+			normals.push_back(glm::cross((temp[1] - temp[0]), (temp[2] - temp[0])));
 
+			vertices.push_back(temp[1]);
+			normals.push_back(glm::cross((temp[0] - temp[1]), (temp[2] - temp[0])));
+
+			vertices.push_back(temp[2]);
+			normals.push_back(glm::cross((temp[0] - temp[2]), (temp[1] - temp[2])));
+
+			vertices.push_back(temp[3]);
+			normals.push_back(glm::cross((temp[3] - temp[1]), (temp[2] - temp[1])));
+
+			vertices.push_back(temp[4]);
+			normals.push_back(glm::cross((temp[3] - temp[2]), (temp[1] - temp[2])));
+
+			vertices.push_back(temp[5]);
+			normals.push_back(glm::cross((temp[2] - temp[3]), (temp[1] - temp[3])));
 
 			currentAngle += tetha;
+			temp.clear();
 		}
 	}
 
