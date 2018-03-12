@@ -489,11 +489,13 @@ void updateRevolutionObjectMesh()
 	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
 
 	float tetha = 2 * 3.1415 / objectResolution;
-	float currentAngle = 0.0f;
 
+	for (int n = 0; n < NB_PTS_ON_SILHOUETTE - 1; n++) {
 
-	for (int k = 0; k < (objectResolution - 1); k++) {
-		for (int n = 0; n < NB_PTS_ON_SILHOUETTE; n++) {
+		float currentAngle = 0.0f;
+
+		for (int k = 0; k < objectResolution; k++) {
+
 			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle);
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle);
@@ -507,60 +509,39 @@ void updateRevolutionObjectMesh()
 
 			normals.push_back(normal);
 			vertices.push_back(vertex);
+
+			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
+			vertex.y = silhouettePointArray[(n + 1)].y;
+			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
+
+			normals.push_back(normal);
+			vertices.push_back(vertex);
+
+			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
+			vertex.y = silhouettePointArray[(n)].y;
+			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
+
+			normals.push_back(normal);
+			vertices.push_back(vertex);
+
+			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
+			vertex.y = silhouettePointArray[(n + 1)].y;
+			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
+
+			normals.push_back(normal);
+			vertices.push_back(vertex);
+
+			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle + tetha);
+			vertex.y = silhouettePointArray[(n + 1)].y;
+			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle + tetha);
+
+			normals.push_back(normal);
+			vertices.push_back(vertex);
+
+
+			currentAngle += tetha;
 		}
-		currentAngle += tetha;
 	}
-
-
-	/*for (int j = 0; j < NB_PTS_ON_SILHOUETTE; j++) {
-
-	}*/
-
-	//vertex.y = -25.f;
-	//float xSize = 200.f, xOrigin = -100.f, xIncrem = xSize / objectResolution;
-	//float zSize = 200.f, zOrigin = -100.f, zIncrem = zSize / objectResolution;
-
-	//normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
-
-	//for (int i = 0; i < objectResolution; i++) {
-	//	for (int j = 0; j < objectResolution; j++) {
-
-	//		float x = xOrigin + i * xIncrem;
-	//		float z = zOrigin + j * zIncrem;
-
-	//		// First triangle
-	//		vertex.x = x + xIncrem;
-	//		vertex.z = z + zIncrem;
-	//		vertices.push_back(vertex);
-	//		normals.push_back(normal);
-
-	//		vertex.x = x + xIncrem;
-	//		vertex.z = z;
-	//		vertices.push_back(vertex);
-	//		normals.push_back(normal);
-
-	//		vertex.x = x;
-	//		vertex.z = z + zIncrem;
-	//		vertices.push_back(vertex);
-	//		normals.push_back(normal);
-
-	//		// Second triangle
-	//		vertex.x = x + xIncrem;
-	//		vertex.z = z;
-	//		vertices.push_back(vertex);
-	//		normals.push_back(normal);
-
-	//		vertex.x = x;
-	//		vertex.z = z;
-	//		vertices.push_back(vertex);
-	//		normals.push_back(normal);
-
-	//		vertex.x = x;
-	//		vertex.z = z + zIncrem;
-	//		vertices.push_back(vertex);
-	//		normals.push_back(normal);
-	//	}
-	//}
 
 	glBindVertexArray(vaoRevolutionID);
 
@@ -623,7 +604,7 @@ void drawRevolutionObject()
 	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
 	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glDrawArrays(GL_TRIANGLES, 0, objectResolution * objectResolution * 6);
+	glDrawArrays(GL_TRIANGLES, 0, 672);
 
 	glBindVertexArray(0);
 
