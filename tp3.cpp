@@ -299,6 +299,66 @@ void copyLightParametersOnGPU(void)
 }
 
 
+glm::vec3 getNormalForVertex(int silArrayIndex, float currentAngle, float tetha) {
+
+	std::vector<glm::vec3> vertexs;
+
+	glm::vec3 vertex;
+	glm::vec3 center;
+
+	center.x = (silhouettePointArray[silArrayIndex].x)*cos(currentAngle);
+	center.y = silhouettePointArray[(silArrayIndex)].y;
+	center.z = -(silhouettePointArray[(silArrayIndex)].x)*sin(currentAngle);
+
+	for (int s = silArrayIndex - 1; s <= silArrayIndex + 1; s++) {
+		if (s >= 0 && s < NB_PTS_ON_SILHOUETTE) {
+			for (float a = currentAngle - tetha; a <= currentAngle + tetha; a += tetha) {
+				if (a != currentAngle || s != silArrayIndex) {
+					vertex.x = (silhouettePointArray[s].x)*cos(a);
+					vertex.y = silhouettePointArray[(s)].y;
+					vertex.z = -(silhouettePointArray[(s)].x)*sin(a);
+
+					vertexs.push_back(vertex);
+				}
+			}
+		}
+	}
+
+	std::vector<glm::vec3> normals;
+	glm::vec3 normal;
+
+	glm::vec3 vec1;
+	glm::vec3 vec2;
+
+
+	for (int i = 0; i < vertexs.size(); i++) {
+		for (int j = i + 1; j < vertexs.size(); j++) {
+
+			vec1 = glm::normalize(vertexs[i] - center);
+			vec2 = glm::normalize(vertexs[j] - center);
+
+			if (glm::dot(vec1,vec2) < 1) {
+
+				normal = glm::cross(vec2,vec1);
+				normals.push_back(normal);
+			}
+		}
+	}
+
+	glm::vec3 output;
+
+	for (int i = 0; i < normals.size(); i++) {
+		output = normals[i] + output;
+	}
+
+	output.x = output.x / normals.size();
+	output.y = output.y / normals.size();
+	output.z = output.z / normals.size();
+
+	return glm::normalize(output);
+
+}
+
 /*****************************************************
 NAME: updateNormalLines
 
@@ -310,6 +370,50 @@ DESCRIPTION: create a series of lines each made of 2 vertices.
 void updateNormalLines()
 {
 	// AJOUTER CODE ICI
+	std::vector<glm::vec3> vertices;
+	glm::vec3 vertex;
+	glm::vec3 normal;
+
+	float factor = 20.0;
+
+	float tetha = 2 * 3.1415 / objectResolution;
+
+	for (int n = 0; n < NB_PTS_ON_SILHOUETTE - 1; n++) {
+
+		float currentAngle = 0.0f;
+		std::vector<glm::vec3> temp;
+
+		for (int k = 0; k < objectResolution; k++) {
+
+			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle);
+			vertex.y = silhouettePointArray[(n)].y;
+			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle);
+
+			vertices.push_back(vertex);
+
+			normal = getNormalForVertex(n, currentAngle, tetha);
+			
+			normal.x *= factor;
+			normal.y *= factor;
+			normal.z *= factor;
+
+
+			vertices.push_back(vertex + normal);
+
+			currentAngle += tetha;
+
+		}
+		
+	}
+
+	glBindVertexArray(vaoNormalsID);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboNormalsID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+	int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
+	glEnableVertexAttribArray(in_PositionLocation);
+	glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 
@@ -323,7 +427,34 @@ Somewhat similar to "drawLight"
 *****************************************************/
 void drawNormals()
 {
-	//AJOUTER CODE ICI
+	shader->bind(); // activate shader
+
+	glm::mat4 normalMatrix = glm::mat4(1.f);
+
+	// Get the locations of uniform variables
+	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
+	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
+	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
+	int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
+
+	// Copy data to the GPU
+	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &normalMatrix[0][0]);
+	glUniform3f(materialKdLocation, 1.0f, 1.0f, 1.0f);
+
+	// Draw object
+	glBindVertexArray(vaoNormalsID);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vboNormalsID);
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glDrawArrays(GL_LINES, 0, (NB_PTS_ON_SILHOUETTE - 1) * objectResolution * 2);
+
+	glBindVertexArray(0);
+
+	shader->unbind(); // deactivate shader
 }
 
 
@@ -465,7 +596,6 @@ void drawPlane()
 }
 
 
-
 /*****************************************************
 NAME: updateRevolutionObject
 
@@ -502,40 +632,46 @@ void updateRevolutionObjectMesh()
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle);
 
-			temp.push_back(vertex);
+			normals.push_back(getNormalForVertex(n, currentAngle, tetha));
+			vertices.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
 
-			temp.push_back(vertex);
+			normals.push_back(getNormalForVertex(n, currentAngle + tetha, tetha));
+			vertices.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
 
-			temp.push_back(vertex);
+			normals.push_back(getNormalForVertex(n + 1, currentAngle, tetha));
+			vertices.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
 			vertex.y = silhouettePointArray[(n)].y;
 			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
 
-			temp.push_back(vertex);
+			normals.push_back(getNormalForVertex(n, currentAngle + tetha, tetha));
+			vertices.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
 
-			temp.push_back(vertex);
+			normals.push_back(getNormalForVertex(n + 1, currentAngle + tetha, tetha));
+			vertices.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle + tetha);
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle + tetha);
 
-			temp.push_back(vertex);
-	
-			
-			vertices.push_back(temp[0]);
+			normals.push_back(getNormalForVertex(n + 1, currentAngle + tetha, tetha));
+			vertices.push_back(vertex);
+
+
+			/*vertices.push_back(temp[0]);
 			normals.push_back(glm::cross((temp[1] - temp[0]), (temp[2] - temp[0])));
 
 			vertices.push_back(temp[1]);
@@ -551,10 +687,10 @@ void updateRevolutionObjectMesh()
 			normals.push_back(glm::cross((temp[3] - temp[2]), (temp[1] - temp[2])));
 
 			vertices.push_back(temp[5]);
-			normals.push_back(glm::cross((temp[2] - temp[3]), (temp[1] - temp[3])));
+			normals.push_back(glm::cross((temp[2] - temp[3]), (temp[1] - temp[3])));*/
 
 			currentAngle += tetha;
-			temp.clear();
+			/*temp.clear();*/
 		}
 	}
 
@@ -619,7 +755,7 @@ void drawRevolutionObject()
 	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
 	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glDrawArrays(GL_TRIANGLES, 0, 672);
+	glDrawArrays(GL_TRIANGLES, 0, 6 * objectResolution*(NB_PTS_ON_SILHOUETTE - 1));
 
 	glBindVertexArray(0);
 
@@ -828,6 +964,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'n': // Enable or disable the normals
 	case 'N':
+		printf("toto");
 		displayNormals = !displayNormals;
 		break;
 
