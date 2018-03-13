@@ -606,8 +606,6 @@ revolution object is defined by the global variable "objectResolution"
 *****************************************************/
 void updateRevolutionObjectMesh()
 {
-
-	//AJOUTER CODE ICI
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 
@@ -819,38 +817,78 @@ std::vector<glm::vec3> getSphereVertices(float rad, int meridian, int latitude)
 	// AJOUTER CODE ICI
 	// EFFACER LE CONTENU DE CETTE FONCTION ET REMPLACEZ LE PAR DES VERTEX DEVANT FORMER UNE SPHERE DE RAYON "rad"
 
+	// Silhouette parameters : the silhouette contains 17 2D points 
+	//#define		NB_PTS_ON_SILHOUETTE 17
+	//	glm::vec2	silhouettePointArray[NB_PTS_ON_SILHOUETTE];
+	//	int 		objectResolution = 7;	/* the number of times the silhouette is rotated. */
+	//
+	// meridian = object resolution = nb of time its rotated
+	// latitude = nb of stack = nb point on silhouette
+	//rad = distance
+
+	// AJOUTER CODE ICI
+	// EFFACER LE CONTENU DE CETTE FONCTION ET REMPLACEZ LE PAR DES VERTEX DEVANT FORMER UNE SPHERE DE RAYON "rad"
+
+	std::vector<glm::vec2> sphereSil(latitude);
 	std::vector<glm::vec3> vertices;
 	glm::vec3 vertex;
+	float theta = deg2rad(360) / latitude;
+	float currentAngle = 0.0f;
 
-	// First triangle
-	vertex.x = 0.f; vertex.y = 0.f; vertex.z = 0.f;
-	vertices.push_back(vertex);
+	for (int i = 0; i < latitude; i++)
+	{
+		sphereSil[i].x = rad * cos(currentAngle + i*theta);
+		sphereSil[i].y = rad * sin(currentAngle + i*theta);
+	}
+	for (int i = 0; i < meridian; i++) {
+		for (int j = 0; j < latitude - 1; j++) {
+			vertex.x = sphereSil[j].x * cos(currentAngle);
+			vertex.y = sphereSil[j].y;
+			vertex.z = -(sphereSil[j].x * sin(currentAngle));
 
-	vertex.x = 0.f; vertex.y = rad; vertex.z = 0.f;
-	vertices.push_back(vertex);
+			vertices.push_back(vertex);
 
-	vertex.x = rad; vertex.y = 0.f; vertex.z = 0.f;
-	vertices.push_back(vertex);
+			vertex.x = sphereSil[j].x * cos(currentAngle + theta);
+			vertex.y = sphereSil[j].y;
+			vertex.z = -(sphereSil[j].x * sin(currentAngle + theta));
 
-	// second triangle
-	vertex.x = 0.f; vertex.y = 0.f; vertex.z = 0.f;
-	vertices.push_back(vertex);
+			vertices.push_back(vertex);
 
-	vertex.x = 0.f; vertex.y = 0.f; vertex.z = rad;
-	vertices.push_back(vertex);
+			vertex.x = sphereSil[j + 1].x * cos(currentAngle);
+			vertex.y = sphereSil[j + 1].y;
+			vertex.z = -(sphereSil[j + 1].x * sin(currentAngle));
 
-	vertex.x = 0.f; vertex.y = rad; vertex.z = 0.f;
-	vertices.push_back(vertex);
+			vertices.push_back(vertex);
 
-	// third triangle
-	vertex.x = rad; vertex.y = 0.f; vertex.z = 0.f;
-	vertices.push_back(vertex);
+			vertex.x = sphereSil[j].x * cos(currentAngle + theta);
+			vertex.y = sphereSil[j].y;
+			vertex.z = -(sphereSil[j].x * sin(currentAngle + theta));
 
-	vertex.x = 0.f; vertex.y = rad; vertex.z = 0.f;
-	vertices.push_back(vertex);
+			vertices.push_back(vertex);
 
-	vertex.x = 0.f; vertex.y = 0.f; vertex.z = rad;
-	vertices.push_back(vertex);
+			vertex.x = sphereSil[j + 1].x * cos(currentAngle);
+			vertex.y = sphereSil[j + 1].y;
+			vertex.z = -(sphereSil[j + 1].x * sin(currentAngle));
+
+			vertices.push_back(vertex);
+
+			vertex.x = sphereSil[j + 1].x * cos(currentAngle + theta);
+			vertex.y = sphereSil[j + 1].y;
+			vertex.z = -(sphereSil[j + 1].x * sin(currentAngle + theta));
+
+			vertices.push_back(vertex);
+		}
+		currentAngle += theta;
+		glBindVertexArray(vaoRevolutionID);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+		int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
+		glEnableVertexAttribArray(in_PositionLocation);
+		glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	}
 
 	return vertices;
 }
@@ -964,7 +1002,6 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'n': // Enable or disable the normals
 	case 'N':
-		printf("toto");
 		displayNormals = !displayNormals;
 		break;
 
