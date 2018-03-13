@@ -478,102 +478,7 @@ void updateRevolutionObjectMesh()
 {
 
 	//AJOUTER CODE ICI
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> normals;
-
-	std::vector<glm::vec3> temp;
-
-	glm::vec3 vertex;
-	glm::vec3 normal;
-
-	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
-
-	float tetha = 2 * 3.1415 / objectResolution;
-
-	for (int n = 0; n < NB_PTS_ON_SILHOUETTE - 1; n++) {
-
-		float currentAngle = 0.0f;
-
-		std::vector<glm::vec3> temp;
-
-		for (int k = 0; k < objectResolution; k++) {
-
-			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle);
-			vertex.y = silhouettePointArray[(n)].y;
-			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle);
-
-			temp.push_back(vertex);
-
-			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
-			vertex.y = silhouettePointArray[(n)].y;
-			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
-
-			temp.push_back(vertex);
-
-			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
-			vertex.y = silhouettePointArray[(n + 1)].y;
-			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
-
-			temp.push_back(vertex);
-
-			vertex.x = (silhouettePointArray[(n)].x)*cos(currentAngle + tetha);
-			vertex.y = silhouettePointArray[(n)].y;
-			vertex.z = -(silhouettePointArray[(n)].x)*sin(currentAngle + tetha);
-
-			temp.push_back(vertex);
-
-			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle);
-			vertex.y = silhouettePointArray[(n + 1)].y;
-			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
-
-			temp.push_back(vertex);
-
-			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle + tetha);
-			vertex.y = silhouettePointArray[(n + 1)].y;
-			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle + tetha);
-
-			temp.push_back(vertex);
 	
-			
-			vertices.push_back(temp[0]);
-			normals.push_back(glm::cross((temp[1] - temp[0]), (temp[2] - temp[0])));
-
-			vertices.push_back(temp[1]);
-			normals.push_back(glm::cross((temp[0] - temp[1]), (temp[2] - temp[0])));
-
-			vertices.push_back(temp[2]);
-			normals.push_back(glm::cross((temp[0] - temp[2]), (temp[1] - temp[2])));
-
-			vertices.push_back(temp[3]);
-			normals.push_back(glm::cross((temp[3] - temp[1]), (temp[2] - temp[1])));
-
-			vertices.push_back(temp[4]);
-			normals.push_back(glm::cross((temp[3] - temp[2]), (temp[1] - temp[2])));
-
-			vertices.push_back(temp[5]);
-			normals.push_back(glm::cross((temp[2] - temp[3]), (temp[1] - temp[3])));
-
-			currentAngle += tetha;
-			temp.clear();
-		}
-	}
-
-	glBindVertexArray(vaoRevolutionID);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-
-	int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
-	glEnableVertexAttribArray(in_PositionLocation);
-	glVertexAttribPointer(in_PositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-
-	int in_NormalLocation = glGetAttribLocation(shader->id(), "in_Normal");
-	glEnableVertexAttribArray(in_NormalLocation);
-	glVertexAttribPointer(in_NormalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
 }
 
 /*****************************************************
@@ -584,46 +489,6 @@ DESCRIPTION: draw the revolution object with material materials[1]
 *****************************************************/
 void drawRevolutionObject()
 {
-	shader->bind(); // activate shader
-
-	glm::mat4 revolutionObjectMatrix = glm::mat4(1.f);
-
-	// Get the locations of uniform shader variables
-	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
-	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
-	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
-
-	int materialKaLocation = glGetUniformLocation(shader->id(), "materialKa");
-	int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
-	int materialKsLocation = glGetUniformLocation(shader->id(), "materialKs");
-	int materialShininessLocation = glGetUniformLocation(shader->id(), "materialShininess");
-
-	// Copy data to the GPU
-	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
-	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &revolutionObjectMatrix[0][0]);
-
-	glUniform3f(materialKaLocation, materials[1].ambient[0], materials[1].ambient[1], materials[1].ambient[2]);
-	glUniform3f(materialKdLocation, materials[1].diffuse[0], materials[1].diffuse[1], materials[1].diffuse[2]);
-	glUniform3f(materialKsLocation, materials[1].specular[0], materials[1].specular[1], materials[1].specular[2]);
-	glUniform1f(materialShininessLocation, materials[1].shininess);
-
-	// Draw the object
-	glBindVertexArray(vaoRevolutionID);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
-	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, nboRevolutionID);
-	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glDrawArrays(GL_TRIANGLES, 0, 672);
-
-	glBindVertexArray(0);
-
-	shader->unbind(); // deactivate shader
 }
 
 
