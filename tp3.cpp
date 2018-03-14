@@ -306,20 +306,36 @@ glm::vec3 getNormalForVertex(int silArrayIndex, float currentAngle, float tetha)
 	glm::vec3 vertex;
 	glm::vec3 center;
 
-	center.x = (silhouettePointArray[silArrayIndex].x)*cos(currentAngle);
-	center.y = silhouettePointArray[(silArrayIndex)].y;
-	center.z = -(silhouettePointArray[(silArrayIndex)].x)*sin(currentAngle);
+	glm::vec3 vectrices[9];
+	/**************
+	1-----2-----3
+	|     |     |
+	|     |     |
+	4-----0-----5
+	|     |     |
+	|     |     |
+	6-----7-----8
+	where 0 is the point where we want to calculate the normal
+	**************/
+
+
+	vectrices[0].x = (silhouettePointArray[silArrayIndex].x)*cos(currentAngle);
+	vectrices[0].y = silhouettePointArray[(silArrayIndex)].y;
+	vectrices[0].z = -(silhouettePointArray[(silArrayIndex)].x)*sin(currentAngle);
+
+	int index = 1;
 
 	for (int s = silArrayIndex - 1; s <= silArrayIndex + 1; s++) {
-		if (s >= 0 && s < NB_PTS_ON_SILHOUETTE) {
-			for (float a = currentAngle - tetha; a <= currentAngle + tetha; a += tetha) {
-				if (a != currentAngle || s != silArrayIndex) {
-					vertex.x = (silhouettePointArray[s].x)*cos(a);
-					vertex.y = silhouettePointArray[(s)].y;
-					vertex.z = -(silhouettePointArray[(s)].x)*sin(a);
+		for (float a = currentAngle - tetha; a <= currentAngle + tetha; a += tetha) {
+			if (a != currentAngle || s != silArrayIndex) {
+				if (s >= 0 && s < NB_PTS_ON_SILHOUETTE) {
 
-					vertexs.push_back(vertex);
+					vectrices[index].x = (silhouettePointArray[s].x)*cos(a);
+					vectrices[index].y = silhouettePointArray[(s)].y;
+					vectrices[index].z = -(silhouettePointArray[(s)].x)*sin(a);
+
 				}
+				index++;
 			}
 		}
 	}
@@ -331,29 +347,113 @@ glm::vec3 getNormalForVertex(int silArrayIndex, float currentAngle, float tetha)
 	glm::vec3 vec2;
 
 
-	for (int i = 0; i < vertexs.size(); i++) {
-		for (int j = i + 1; j < vertexs.size(); j++) {
+	vec1 = glm::normalize(vectrices[1] - vectrices[0]);
 
-			vec1 = glm::normalize(vertexs[i] - center);
-			vec2 = glm::normalize(vertexs[j] - center);
+	vec2 = glm::normalize(vectrices[2] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
 
-			if (glm::dot(vec1,vec2) < 1) {
+	vec2 = glm::normalize(vectrices[3] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
 
-				normal = glm::cross(vec2,vec1);
-				normals.push_back(normal);
-			}
-		}
-	}
+	vec2 = glm::normalize(vectrices[4] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[5] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[6] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[7] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+
+	vec1 = glm::normalize(vectrices[2] - vectrices[0]);
+
+	vec2 = glm::normalize(vectrices[3] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[4] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[5] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[6] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[8] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+
+	vec1 = glm::normalize(vectrices[3] - vectrices[0]);
+
+	vec2 = glm::normalize(vectrices[4] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[5] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[7] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[8] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+
+	vec1 = glm::normalize(vectrices[4] - vectrices[0]);
+
+	vec2 = glm::normalize(vectrices[6] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[7] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[8] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+
+	vec1 = glm::normalize(vectrices[5] - vectrices[0]);
+
+	vec2 = glm::normalize(vectrices[6] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[7] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+	vec2 = glm::normalize(vectrices[8] - vectrices[0]);
+	normals.push_back(glm::cross(vec1, vec2));
+
+
+	vec1 = glm::normalize(vectrices[6] - vectrices[0]);
+
+	vec2 = glm::normalize(vectrices[7] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+	vec2 = glm::normalize(vectrices[8] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
+
+
+	vec1 = glm::normalize(vectrices[7] - vectrices[0]);
+
+	vec2 = glm::normalize(vectrices[8] - vectrices[0]);
+	normals.push_back(glm::cross(vec2, vec1));
 
 	glm::vec3 output;
+	int count = 0;
 
 	for (int i = 0; i < normals.size(); i++) {
-		output = normals[i] + output;
+
+		if (glm::length(normals[i]) != 0) {
+			count++;
+			output = normals[i] + output;
+		}
+
 	}
 
-	output.x = output.x / normals.size();
-	output.y = output.y / normals.size();
-	output.z = output.z / normals.size();
+	output.x = output.x / count;
+	output.y = output.y / count;
+	output.z = output.z / count;
 
 	return glm::normalize(output);
 
@@ -392,7 +492,7 @@ void updateNormalLines()
 			vertices.push_back(vertex);
 
 			normal = getNormalForVertex(n, currentAngle, tetha);
-			
+
 			normal.x *= factor;
 			normal.y *= factor;
 			normal.z *= factor;
@@ -403,7 +503,7 @@ void updateNormalLines()
 			currentAngle += tetha;
 
 		}
-		
+
 	}
 
 	glBindVertexArray(vaoNormalsID);
