@@ -376,7 +376,7 @@ void updateNormalLines()
 
 	float factor = 20.0;
 
-	float tetha = 2 * 3.1415 / objectResolution;
+	float tetha = deg2rad(360) / objectResolution;
 
 	for (int n = 0; n < NB_PTS_ON_SILHOUETTE - 1; n++) {
 
@@ -616,7 +616,7 @@ void updateRevolutionObjectMesh()
 
 	normal.x = 0.f; normal.y = 1.f; normal.z = 0.f;
 
-	float tetha = 2 * 3.1415 / objectResolution;
+	float tetha = deg2rad(360) / objectResolution;
 
 	for (int n = 0; n < NB_PTS_ON_SILHOUETTE - 1; n++) {
 
@@ -879,9 +879,10 @@ std::vector<glm::vec3> getSphereVertices(float rad, int meridian, int latitude)
 			vertices.push_back(vertex);
 		}
 		currentAngle += theta;
-		glBindVertexArray(vaoRevolutionID);
+		glBindVertexArray(vaoLightID);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vboRevolutionID);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vboLightID);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
 		int in_PositionLocation = glGetAttribLocation(shader->id(), "in_Position");
