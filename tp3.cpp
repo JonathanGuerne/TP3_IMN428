@@ -535,13 +535,15 @@ void drawNormals()
 	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix");
 	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix");
 	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix");
-	int materialKdLocation = glGetUniformLocation(shader->id(), "materialKd");
+
+	int materialKaLocation = glGetUniformLocation(shader->id(), "materialKa");
 
 	// Copy data to the GPU
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &normalMatrix[0][0]);
-	glUniform3f(materialKdLocation, 1.0f, 1.0f, 1.0f);
+	
+	glUniform3f(materialKaLocation, 1, 1, 1);
 
 	// Draw object
 	glBindVertexArray(vaoNormalsID);
