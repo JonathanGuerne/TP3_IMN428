@@ -474,7 +474,7 @@ void updateNormalLines()
 	glm::vec3 vertex;
 	glm::vec3 normal;
 
-	float factor = 20.0;
+	float factor = 20;
 
 	float tetha = deg2rad(360) / objectResolution;
 
@@ -543,7 +543,7 @@ void drawNormals()
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
 	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &normalMatrix[0][0]);
 	
-	glUniform3f(materialKaLocation, 1, 1, 1);
+	glUniform3f(materialKaLocation, 2, 2, 2);
 
 	// Draw object
 	glBindVertexArray(vaoNormalsID);
@@ -760,7 +760,7 @@ void updateRevolutionObjectMesh()
 			vertex.y = silhouettePointArray[(n + 1)].y;
 			vertex.z = -(silhouettePointArray[(n + 1)].x)*sin(currentAngle);
 
-			normals.push_back(getNormalForVertex(n + 1, currentAngle + tetha, tetha));
+			normals.push_back(getNormalForVertex(n + 1, currentAngle, tetha));
 			vertices.push_back(vertex);
 
 			vertex.x = (silhouettePointArray[(n + 1)].x)*cos(currentAngle + tetha);
